@@ -5,14 +5,14 @@
     "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
-    "hash" : "959002362",
+    "hash" : "0",
     "id" : "C746969A",
-    "lastKnownWriteTime" : 1535081814,
-    "last_content_update" : 1535081814936,
+    "lastKnownWriteTime" : 1535082240,
+    "last_content_update" : 1535082240106,
     "path" : "C:/Users/rafae/OneDrive/Workspace/Rstudio/AKQFIT.r",
     "project_path" : "AKQFIT.r",
     "properties" : {
-        "cursorPosition" : "43,12",
+        "cursorPosition" : "43,6",
         "scrollLine" : "29"
     },
     "relative_order" : 1,
