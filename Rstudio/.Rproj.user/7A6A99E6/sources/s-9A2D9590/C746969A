@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1535003187458.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "959002362",
+    "id" : "C746969A",
+    "lastKnownWriteTime" : 1535081814,
+    "last_content_update" : 1535081814936,
+    "path" : "C:/Users/rafae/OneDrive/Workspace/Rstudio/AKQFIT.r",
+    "project_path" : "AKQFIT.r",
+    "properties" : {
+        "cursorPosition" : "43,12",
+        "scrollLine" : "29"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
