@@ -7,13 +7,13 @@
     "folds" : "",
     "hash" : "0",
     "id" : "C746969A",
-    "lastKnownWriteTime" : 1535082240,
-    "last_content_update" : 1535082240106,
+    "lastKnownWriteTime" : 1535084324,
+    "last_content_update" : 1535084324695,
     "path" : "C:/Users/rafae/OneDrive/Workspace/Rstudio/AKQFIT.r",
     "project_path" : "AKQFIT.r",
     "properties" : {
-        "cursorPosition" : "43,6",
-        "scrollLine" : "29"
+        "cursorPosition" : "189,0",
+        "scrollLine" : "165"
     },
     "relative_order" : 1,
     "source_on_save" : false,
