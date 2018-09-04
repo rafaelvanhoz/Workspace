@@ -1,0 +1,29 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1535336002569.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "1E7E11B4",
+    "lastKnownWriteTime" : 13229757704831081,
+    "last_content_update" : 1535336002569,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "486B8608",
+        "caption" : "Dif",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=Dif&cache_key=486B8608",
+        "displayedObservations" : 24,
+        "environment" : "",
+        "object" : "Dif",
+        "preview" : 0,
+        "totalObservations" : 24,
+        "variables" : 1
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}

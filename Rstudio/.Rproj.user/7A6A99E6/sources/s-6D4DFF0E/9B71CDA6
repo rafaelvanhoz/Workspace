@@ -1,0 +1,29 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1535335892757.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "9B71CDA6",
+    "lastKnownWriteTime" : 3180141808686473843,
+    "last_content_update" : 1535335892757,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "B86A990",
+        "caption" : "Yaju",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=Yaju&cache_key=B86A990",
+        "displayedObservations" : "24",
+        "environment" : "",
+        "object" : "Yaju",
+        "preview" : "0",
+        "totalObservations" : "24",
+        "variables" : "1"
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}
