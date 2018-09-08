@@ -252,21 +252,21 @@ sEresau = sEresau * Eresau / 100
 N = nrow(data)
 
 #Calcula o Y Superior da matrix Y
-Ys = expression(AspCd / (Efic * FCd * Gepi))
+Ys = expression(log(AspCd / (Efic * FCd * Gepi)))
 Ysuperior = eval(Ys)
 
 #Calcula o Y Medio da Matrix Y
-Ym = expression(((FCdau * (Aspau / AspCdau) - 1) * (Gth * Gepiau)) / ((FCd * (Asp / AspCd) - 1) * (Gthau * Gepi)))
+Ym = expression((log((FCdau * (Aspau / AspCdau) - 1) * (Gth * Gepiau)) / ((FCd * (Asp / AspCd) - 1) * (Gthau * Gepi))))
 Ymedio = 0
 for (i in 1:N) {
-  Ymedio[i] = ((FCdau[idouro[i]] * (Aspau[idouro[i]] / AspCdau[idouro[i]]) - 1) * (Gth[i] * Gepiau[idouro[i]])) / ((FCd[i] * (Asp[i] / AspCd[i]) - 1) * (Gthau[idouro[i]] * Gepi[i]))
+  Ymedio[i] = log(((FCdau[idouro[i]] * (Aspau[idouro[i]] / AspCdau[idouro[i]]) - 1) * (Gth[i] * Gepiau[idouro[i]])) / ((FCd[i] * (Asp[i] / AspCd[i]) - 1) * (Gthau[idouro[i]] * Gepi[i])))
 }
 
 #Calcula o Y Inferior da matrix Y
-Yi = expression(((Asp - AspCd / FCd) / (Aspau - AspCdau / FCdau)) * (Gthau / Gth * Eficau / Efic))
+Yi = expression(log(((Asp - AspCd / FCd) / (Aspau - AspCdau / FCdau)) * (Gthau / Gth * Eficau / Efic)))
 Yinferior = 0
 for(i in 1:N){
-  Yinferior[i] = ((Asp[i] - AspCd[i] / FCd[i]) / (Aspau[idouro[i]] - AspCdau[idouro[i]] / FCdau[idouro[i]])) * (Gthau[idouro[i]] / Gth[i] * Eficau[idouro[i]] / Efic[i])
+  Yinferior[i] = log(((Asp[i] - AspCd[i] / FCd[i]) / (Aspau[idouro[i]] - AspCdau[idouro[i]] / FCdau[idouro[i]])) * (Gthau[idouro[i]] / Gth[i] * Eficau[idouro[i]] / Efic[i]))
 }
 Y = c(Ysuperior, Ymedio, Yinferior)
 
@@ -286,20 +286,20 @@ dYmGth = eval(D(Ym, 'Gth'))
 dYmGepi = eval(D(Ym, 'Gepi'))
 
 #Ymedio com ouro
-dYmAspauexp = D(expression(((FCdau * (Aspau / AspCdau) - 1) * (Gth * Gepiau)) / ((FCd * (Asp / AspCd) - 1) * (Gthau * Gepi)) * Q0au), 'Aspau')
-dYmAspau = eval(FCdau[idouro] * (1/AspCdau[idouro]) * (Gth * Gepiau[idouro])/((FCd * (Asp/AspCd) - 1) * (Gthau[idouro] * Gepi))* Q0au)
+dYmAspauexp = D(expression(log(((FCdau * (Aspau / AspCdau) - 1) * (Gth * Gepiau)) / ((FCd * (Asp / AspCd) - 1) * (Gthau * Gepi)))+log(Q0au)), 'Aspau')
+dYmAspau = eval(FCdau[idouro] * (1/AspCdau[idouro]) * (Gth * Gepiau[idouro])/((FCd * (Asp/AspCd) - 1) * (Gthau[idouro] * Gepi))/(((FCdau[idouro] * (Aspau[idouro]/AspCdau[idouro]) - 1) * (Gth * Gepiau[idouro]))/((FCd * (Asp/AspCd) - 1) * (Gthau[idouro] * Gepi))))
 
-dYmAspCdauexp = D(expression(((FCdau * (Aspau / AspCdau) - 1) * (Gth * Gepiau)) / ((FCd * (Asp / AspCd) - 1) * (Gthau * Gepi)) * Q0au), 'AspCdau')
-dYmAspCdau = eval(-(FCdau[idouro] * (Aspau[idouro]/AspCdau[idouro]^2) * (Gth * Gepiau[idouro])/((FCd * (Asp/AspCd) - 1) * (Gthau[idouro] * Gepi)) * Q0au))
+dYmAspCdauexp = D(expression(log(((FCdau * (Aspau / AspCdau) - 1) * (Gth * Gepiau)) / ((FCd * (Asp / AspCd) - 1) * (Gthau * Gepi)))+log(Q0au)), 'AspCdau')
+dYmAspCdau = eval(-(FCdau[idouro] * (Aspau[idouro]/AspCdau[idouro]^2) * (Gth * Gepiau[idouro])/((FCd * (Asp/AspCd) - 1) * (Gthau[idouro] * Gepi))/(((FCdau[idouro] * (Aspau[idouro]/AspCdau[idouro]) - 1) * (Gth * Gepiau[idouro]))/((FCd * (Asp/AspCd) - 1) * (Gthau[idouro] * Gepi)))))
 
-dYmFCdauexp = D(expression(((FCdau * (Aspau / AspCdau) - 1) * (Gth * Gepiau)) / ((FCd * (Asp / AspCd) - 1) * (Gthau * Gepi)) * Q0au), 'FCdau')
-dYmFCdau = eval((Aspau[idouro]/AspCdau[idouro]) * (Gth * Gepiau[idouro])/((FCd * (Asp/AspCd) - 1) * (Gthau[idouro] * Gepi)) * Q0au)
+dYmFCdauexp = D(expression(log(((FCdau * (Aspau / AspCdau) - 1) * (Gth * Gepiau)) / ((FCd * (Asp / AspCd) - 1) * (Gthau * Gepi)))+log(Q0au)), 'FCdau')
+dYmFCdau = eval((Aspau[idouro]/AspCdau[idouro]) * (Gth * Gepiau[idouro])/((FCd * (Asp/AspCd) - 1) * (Gthau[idouro] * Gepi))/(((FCdau[idouro] * (Aspau[idouro]/AspCdau[idouro]) - 1) * (Gth * Gepiau[idouro]))/((FCd * (Asp/AspCd) - 1) * (Gthau[idouro] * Gepi))))
 
-dYmGthauexp = D(expression(((FCdau * (Aspau / AspCdau) - 1) * (Gth * Gepiau)) / ((FCd * (Asp / AspCd) - 1) * (Gthau * Gepi)) * Q0au), 'Gthau')
-dYmGthau = eval(-(((FCdau[idouro] * (Aspau[idouro]/AspCdau[idouro]) - 1) * (Gth * Gepiau[idouro])) * ((FCd * (Asp/AspCd) - 1) * Gepi)/((FCd * (Asp/AspCd) - 1) * (Gthau[idouro] * Gepi))^2 * Q0au))
+dYmGthauexp = D(expression(log(((FCdau * (Aspau / AspCdau) - 1) * (Gth * Gepiau)) / ((FCd * (Asp / AspCd) - 1) * (Gthau * Gepi)))+log(Q0au)), 'Gthau')
+dYmGthau = eval(-(((FCdau[idouro] * (Aspau[idouro]/AspCdau[idouro]) - 1) * (Gth * Gepiau[idouro])) * ((FCd * (Asp/AspCd) - 1) * Gepi)/((FCd * (Asp/AspCd) - 1) * (Gthau[idouro] * Gepi))^2/(((FCdau[idouro] * (Aspau/AspCdau[idouro]) - 1) * (Gth * Gepiau[idouro]))/((FCd * (Asp/AspCd) - 1) * (Gthau[idouro] * Gepi)))))
 
-dYmGepiauexp = D(expression(((FCdau * (Aspau / AspCdau) - 1) * (Gth * Gepiau)) / ((FCd * (Asp / AspCd) - 1) * (Gthau * Gepi)) * Q0au), 'Gepiau')
-dYmGepiau = eval((FCdau[idouro] * (Aspau[idouro]/AspCdau[idouro]) - 1) * Gth/((FCd * (Asp/AspCd) - 1) * (Gthau[idouro] * Gepi)) * Q0au)
+dYmGepiauexp = D(expression(log(((FCdau * (Aspau / AspCdau) - 1) * (Gth * Gepiau)) / ((FCd * (Asp / AspCd) - 1) * (Gthau * Gepi)))+log(Q0au)), 'Gepiau')
+dYmGepiau = eval((FCdau[idouro] * (Aspau[idouro]/AspCdau[idouro]) - 1) * Gth/((FCd * (Asp/AspCd) - 1) * (Gthau[idouro] * Gepi))/(((FCdau[idouro] * (Aspau[idouro]/AspCdau[idouro]) - 1) * (Gth * Gepiau[idouro]))/((FCd * (Asp/AspCd) - 1) * (Gthau[idouro] * Gepi))))
 
 
 #Yinferior sem ouro
@@ -310,20 +310,20 @@ dYiGth = eval(D(Yi, 'Gth'))
 dYiEfic = eval(D(Yi, 'Efic'))
 
 #Yinferior com ouro
-dYiAspauexp = D(expression(((Asp - AspCd / FCd) / (Aspau - AspCdau / FCdau)) * (Gthau / Gth * Eficau / Efic)), 'Aspau')
-dYiAspau = eval( - ((Asp - AspCd / FCd) / (Aspau[idouro] - AspCdau[idouro] / FCdau[idouro])^2 * (Gthau[idouro] / Gth *Eficau[idouro] / Efic)))
+dYiAspauexp = D(expression(log(((Asp - AspCd / FCd) / (Aspau - AspCdau / FCdau)) * (Gthau / Gth * Eficau / Efic))), 'Aspau')
+dYiAspau = eval( - ((Asp - AspCd / FCd) / (Aspau[idouro] - AspCdau[idouro] / FCdau[idouro])^2 * (Gthau[idouro] / Gth *Eficau[idouro] / Efic) / (((Asp - AspCd / FCd) / (Aspau[idouro] - AspCdau[idouro] / FCdau[idouro])) * (Gthau[idouro] /Gth * Eficau[idouro] / Efic))))
 
-dYiAspCdauexp = D(expression(((Asp - AspCd / FCd) / (Aspau - AspCdau / FCdau)) * (Gthau / Gth * Eficau / Efic)), 'AspCdau')
-dYiAspCdau = eval((Asp - AspCd / FCd) * (1 / FCdau[idouro]) / (Aspau[idouro] - AspCdau[idouro] / FCdau[idouro])^2 *(Gthau[idouro] / Gth * Eficau[idouro] / Efic))
+dYiAspCdauexp = D(expression(log(((Asp - AspCd / FCd) / (Aspau - AspCdau / FCdau)) * (Gthau / Gth * Eficau / Efic))), 'AspCdau')
+dYiAspCdau = eval((Asp - AspCd / FCd) * (1 / FCdau[idouro]) / (Aspau[idouro] - AspCdau[idouro] / FCdau[idouro])^2 *(Gthau[idouro] / Gth * Eficau[idouro] / Efic) / (((Asp - AspCd / FCd) / (Aspau[idouro] - AspCdau[idouro] /FCdau[idouro])) * (Gthau[idouro] / Gth * Eficau[idouro] / Efic)))
 
-dYiFCdauexp = D(expression(((Asp - AspCd / FCd) / (Aspau - AspCdau / FCdau)) * (Gthau / Gth * Eficau / Efic)), 'FCdau')
-dYiFCdau = eval( - ((Asp - AspCd / FCd) * (AspCdau[idouro] / FCdau[idouro]^2) / (Aspau[idouro] - AspCdau[idouro] /FCdau[idouro])^2 * (Gthau[idouro] / Gth * Eficau[idouro] / Efic)))
+dYiFCdauexp = D(expression(log(((Asp - AspCd / FCd) / (Aspau - AspCdau / FCdau)) * (Gthau / Gth * Eficau / Efic))), 'FCdau')
+dYiFCdau = eval( - ((Asp - AspCd / FCd) * (AspCdau[idouro] / FCdau[idouro]^2) / (Aspau[idouro] - AspCdau[idouro] /FCdau[idouro])^2 * (Gthau[idouro] / Gth * Eficau[idouro] / Efic) / (((Asp - AspCd / FCd) / (Aspau[idouro] -AspCdau[idouro] / FCdau[idouro])) * (Gthau[idouro] / Gth * Eficau[idouro] / Efic))))
 
-dYiGthauexp = D(expression(((Asp - AspCd / FCd) / (Aspau - AspCdau / FCdau)) * (Gthau / Gth * Eficau / Efic)), 'Gthau')
-dYiGthau = eval(((Asp - AspCd / FCd) / (Aspau[idouro] - AspCdau[idouro] / FCdau[idouro])) * (1 / Gth * Eficau[idouro] / Efic))
+dYiGthauexp = D(expression(log(((Asp - AspCd / FCd) / (Aspau - AspCdau / FCdau)) * (Gthau / Gth * Eficau / Efic))), 'Gthau')
+dYiGthau = eval(((Asp - AspCd / FCd) / (Aspau[idouro] - AspCdau[idouro] / FCdau[idouro])) * (1 / Gth * Eficau[idouro] / Efic) /(((Asp - AspCd / FCd) / (Aspau[idouro] - AspCdau[idouro] / FCdau[idouro])) * (Gthau[idouro] / Gth * Eficau[idouro] / Efic)))
 
-dYiEficauexp = D(expression(((Asp - AspCd / FCd) / (Aspau - AspCdau / FCdau)) * (Gthau / Gth * Eficau / Efic)), 'Eficau')
-dYiEficau = eval(((Asp - AspCd / FCd) / (Aspau[idouro] - AspCdau[idouro] / FCdau[idouro])) * (Gthau[idouro] / Gth / Efic))
+dYiEficauexp = D(expression(log(((Asp - AspCd / FCd) / (Aspau - AspCdau / FCdau)) * (Gthau / Gth * Eficau / Efic))), 'Eficau')
+dYiEficau = eval(((Asp - AspCd / FCd) / (Aspau[idouro] - AspCdau[idouro] / FCdau[idouro])) * (Gthau[idouro] / Gth / Efic) /(((Asp - AspCd / FCd) / (Aspau[idouro] - AspCdau[idouro] / FCdau[idouro])) * (Gthau[idouro] / Gth * Eficau[idouro] / Efic)))
   
 #Calculo da Variancia
 
@@ -493,12 +493,12 @@ Ab = 25.5
 
  AQ0 = 0
  for (i in 1 : N) {
-   AQ0[i] = (runif(1, min = 1, max = 6))
+   AQ0[i] = log(runif(1, min = 1, max = 6))
  }
  
  Ak0 = 0
  for (i in 1 : N) {
-   Ak0[i] = (runif(1, min = 1, max = 5))
+   Ak0[i] = log(runif(1, min = 1, max = 5))
  }
  
 #AQ0 = log(Q0)
@@ -507,15 +507,12 @@ Ak02 = k0
  
 A2 = matrix(c(Aa, Aalfa, AQ0, Ak0))
 
-
-
-
-colsexp = expression(exp(Aa) * Eres^(2 * Alfa1) * k0 * (((Q0-0.429)/Eres^Alfa1) + (0.429/((2*Alfa1+1)*0.55^Alfa1))))
+#colsexp = expression(Aa + 2 * Aalfa * log(Eres) + log((((Q0 - 0.429) / Eres^Aalfa) + (0.429 / ((2 * Aalfa + 1) * 0.55^Aalfa)))) + log(k0))
 #cols = D(expression(Aa + 2 * Aalfa * log(Eres) * log((((exp(AQ0) - 0.429) / Eres^Aalfa) + (0.429 / ((2 * Aalfa + 1) * 0.55^Aalfa)))) + log(exp(Ak0))), 'Aa')  
-#colsexp = expression(Ab + 2 * Alfa1 * log(Eres) + Alfa1 * log(Q0) + log(Ak02))
-colmexp = expression((((Q0-0.429)/Eres^Alfa1) + (0.429/((2*Alfa1+1)*0.55^Alfa1))))
+colsexp = expression(Ab + 2 * Alfa1 * log(Eres) + Alfa1 * log(Q0) + log(Ak02))
+colmexp = expression((Alfa1 * log(Q0))/(Alfa1 * log(Q0au)))
 
-cols = exp(Aa) * Eres^(2 * Alfa1) * k0 * (((Q0-0.429)/Eres^Alfa1) + (0.429/((2*Alfa1+1)*0.55^Alfa1)))
+cols = rep(1, N)
 colm = rep(0, N)
 coli = rep(0, N)
 col1 = c(cols, colm, coli)
@@ -536,8 +533,8 @@ cols3b = 1/Eres^Alfa1/(((Q0 - 0.429)/Eres^Alfa1) + (0.429/((2 * Alfa1 + 1) * 0.5
 colm3 = eval(D(colmexp, 'Q0'))
 colm3b = 1/Eres^Aalfa/(((Q0au[idouro] - 0.429)/Eresau[idouro]^Aalfa) + (0.429/((2 * Aalfa + 1) * 0.55^Aalfa)))
 
-cols4 = eval(D(colsexp, 'k0'))
-cols4b = rep(1, N) #/exp(Ak0)
+# cols4 = eval(D(colsexp, 'Ak0'))
+# cols4b = rep(1, N) #/exp(Ak0)
 
 Ntotal = N * 3
 XQ0 = matrix(c(0),nrow=Ntotal, ncol = N)
@@ -550,7 +547,7 @@ for(i in 1:N) {
 Xk0 = matrix(c(0),nrow=Ntotal, ncol = N)
 
 for(i in 1:N) {
-  Xk0[i,i] = cols4[i]
+  Xk0[i,i] = 1
   Xk0[(N * 2 + i),i] = 1
 }
   
@@ -565,7 +562,7 @@ Yajusup = 0
 Yajumed = 0
 Yajuinf = 0
 
-R = t(X) %*% Ginv(vY) %*% X
+R = t(X) %*% inv(vY) %*% X
 
 #valores de lambda e parametros para o loop na hora de fazer a analise
 chidif = 1
@@ -583,17 +580,17 @@ while(1) {
       Q0b = A2[i + 2]
       k0b = A2[(i + N + 2)]
       #Yajusup[i] = a2 + 2 * alfa2 * log(Eres[i]) + log((((exp(Q0b) - 0.429) / Eres[i]^alfa2) + (0.429 / ((2 * alfa2 + 1) * 0.55^alfa2)))) + log(exp(k0b))
-      Yajusup[i] = exp(a2) * Eres[i]^(2 * alfa2) * k0b * (((Q0b-0.429)/Eres[i]^alfa2) + (0.429/((2*alfa2+1)*0.55^alfa2)))
-      Yajumed[i] = (((Q0b-0.429)/Eres[i]^alfa2) + (0.429/((2*alfa2+1)*0.55^alfa2)))
+      Yajusup[i] = a2 + 2 * alfa2 * log(Eres[i]) + alfa2 * log(exp(Q0b)) + log(exp(k0b))
+      Yajumed[i] = (alfa2 * log(exp(Q0b)))/(alfa2 * log(Q0au[idouro[i]]))
       #Yajumed[i] = (((exp(Q0b) - 0.429) / Eres[i]^alfa2) + (0.429 / ((2 * alfa2 + 1) * 0.55^alfa2))) / (((Q0au[idouro[i]] - 0.429) / Eresau[idouro[i]]^alfa2) + (0.429 / ((2 * alfa2 + 1) * 0.55^alfa2)))
-      Yajuinf[i] = k0b
+      Yajuinf[i] = log(exp(k0b))
     }
     Yaju2 = matrix(c(Yajusup, Yajumed, Yajuinf))
     datb = Yexp - Yaju2
     Yy = Yexp - Yaju2
     ss = cbind(Yexp, Yaju2)
     if (chi2 == -1) {
-    chi2 = t(datb) %*% Ginv(vY) %*% datb
+    chi2 = t(datb) %*% inv(vY) %*% datb
     }
   }
   Rlambda = matrix(0, nrow = N*2+2, ncol = N*2+2)
@@ -607,22 +604,22 @@ while(1) {
     }
   }
   
-  DA = Ginv(Rlambda) %*% t(X) %*% Ginv(vY) %*% Yy
+  DA = Ginv(Rlambda) %*% t(X) %*% inv(vY) %*% Yy
   Ynovo = X %*% DA
   DD = Yy - Ynovo
-  chi2novo = t(DD) %*% Ginv(vY) %*% DD
+  chi2novo = t(DD) %*% inv(vY) %*% DD
   chidif = chi2novo - chi2
   if (chidif >= 0) {
-    lambda = lambda * 10
-    recalcularY = 1
+    lambda = lambda * 10000
+    recalcularY = 0
   } else {
-      lambda = lambda / 10
+      #lambda = lambda / 10
       Anovo = A2 + DA
       A2 = Anovo
       chi2 = chi2novo
       recalcularY = 1
   }
-  if (isTRUE(abs(chidif) < 1.0) & (isTRUE(abs(chidif) > 0.0000000001))) {
+  if (isTRUE(abs(chidif) < 1.0) & (isTRUE(abs(chidif) > 0.001))) {
     break
   }
 }
