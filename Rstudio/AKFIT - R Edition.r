@@ -1,14 +1,27 @@
 #AKFIT R Edition
 #Rafel Vanhoz Ribeiro
 
+# rm(list = ls()) #FUNCAO QUE APAGA TODOS OS OBJETOS CRIADOS NO WORKSPACE ANTERIORMENTE
+cat("\014") #FUNCAO QUE LIMPA TODAS AS INFORMACOES DO CONSOLE. NECESSARIO PARA NAO TRANSFERIR LIXO NO ARQUIVO DE SAIDA.
+
 #INICIO
 #escolhendo a biblioteca.
+
+#------------------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------------------#
+
+#escolhendo os pacotes para a execucao do código
 
 library(tidyverse)  #Tidtverse é uma coletânea de biblioteca para análise de dados
 library(minpack.lm) #minpack é uma biblioteca para realização do levenberg - marquardt
 library(matlib) #matlib é uma biblioteca que realiza calculos matriciais e inversões de matrizes
+library(scales) #Scales é uma bibioteca que configura e configura, de modo facil, as notacoes cientificas
+
+#------------------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------------------#
 
 # abrindo o arquivo de dados dos elementos
+
 data = readLines(file.choose()) #Abre janela pra escolher o arquivo e lê suas linhas
 data = data[ - 1] #remove a primeira linha do arquivo (cabeçalho)
 data = data[ - 1] #remove a primeira linha do arquivo após remover a primeira linha anterior (nome das colunas)
@@ -129,7 +142,7 @@ sGthau = as.numeric(dataau$sGth)
 Q0au = as.numeric(dataau$Q0)
 sQ0au = as.numeric(dataau$sQ0)
 
-#O comentário abaixo refere - se ao novo padrão de arquivo de dados para o novo cálculo dos parâmetros
+#O comentário abaixo refere-se ao novo padrão de arquivo de dados para o novo cálculo dos parâmetros no futuro, com inclusao dos parametros que compoem o Asp e AspCd
 
 # data2 = readLines(file.choose())
 # data2 = data2[ - 1]
@@ -242,24 +255,36 @@ sQ0au = as.numeric(dataau$sQ0)
 #   sep = '\\s{1,}'
 # )
 
-#Calcula erro da Enegia de Ressonancia (sEres)
+#------------------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------------------#
+
+#Calcula incerteza da Enegia de Ressonancia (sEres) e k0 de referencia
+
 sEres = sEres * Eres / 100
 sEresau = sEresau * Eresau / 100
+sk0 = k0*(sk0/100)
 
-#Define uma variavel que conta o total de linhas do arquivo de dados
+#Define uma variavel que conta o total de linhas do arquivo de dados, necessario para calculos
+
 N = nrow(data)
 
+#------------------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------------------#
+
 #Calcula o Y Superior da matrix Y
+
 Ys = expression(log(AspCd / Q0 / Efic / FCd / Gepi))
 Ysuperior = eval(Ys)
 
 #Calcula o Y Inferior da matrix Y
+
 Yi = expression(log(((Asp - AspCd / FCd) / (Aspau - AspCdau / FCdau)) * (Gthau / Gth * Eficau / Efic)))
 Yinferior = 0
 for(i in 1:N){
   Yinferior[i] = log(((Asp[i] - AspCd[i] / FCd[i]) / (Aspau[idouro[i]] - AspCdau[idouro[i]] / FCdau[idouro[i]])) * (Gthau[idouro[i]] / Gth[i] * Eficau[idouro[i]] / Efic[i]))
 }
-Y = c(Ysuperior,Yinferior)
+
+Y = c(Ysuperior,Yinferior) #define o veto Y, composto por Ysuperior e Yinferior
 
 #derivadas parciais de Ysuperior e Yinferior
 
@@ -269,13 +294,6 @@ dYsQ0 = eval(D(Ys,'Q0'))
 dYsEfic = eval(D(Ys,'Efic'))
 dYsFCd = eval(D(Ys,'FCd'))
 dYsGepi = eval(D(Ys,'Gepi'))
-
-
- # dYiAsp2 = eval(D(Yi, 'Asp'))
- # dYiAspCd2 = eval(D(Yi, 'AspCd'))
- # dYiFCd2 = eval(D(Yi, 'FCd'))
- # dYiGth2 = eval(D(Yi, 'Gth'))
- # dYiEfic2 = eval(D(Yi, 'Efic'))
 
 #Yinferior
 dYiAsp = 0
@@ -301,24 +319,13 @@ for (i in 1 : N) {
   dYiEficau[i] = ((Asp[i] - AspCd[i] / FCd[i]) / (Aspau[idouro[i]] - AspCdau[idouro[i]] / FCdau[idouro[i]])) * (Gthau[idouro[i]] / Gth[i] / Efic[i]) / (((Asp[i] - AspCd[i] / FCd[i]) / (Aspau[idouro[i]] - AspCdau[idouro[i]] / FCdau[idouro[i]])) * (Gthau[idouro[i]] / Gth[i] * Eficau[idouro[i]] / Efic[i]))
 }
 
-# 
-#  #Yinferior com ouro
-#  dYiAspauexp = D(expression(log(((Asp - AspCd / FCd) / (Aspau - AspCdau / FCdau)) * (Gthau / Gth * Eficau / Efic))), 'Aspau')
-#  dYiAspau2 = eval( - ((Asp - AspCd / FCd) / (Aspau[idouro] - AspCdau[idouro] / FCdau[idouro])^2 * (Gthau[idouro] / Gth * Eficau[idouro] / Efic) / (((Asp - AspCd / FCd) / (Aspau[idouro] - AspCdau[idouro] / FCdau[idouro])) * (Gthau[idouro] /Gth * Eficau[idouro] / Efic))))
-#  
-#  dYiAspCdauexp = D(expression(log(((Asp - AspCd / FCd) / (Aspau - AspCdau / FCdau)) * (Gthau / Gth * Eficau / Efic))), 'AspCdau')
-#  dYiAspCdau2 = eval((Asp - AspCd / FCd) * (1 / FCdau[idouro]) / (Aspau[idouro] - AspCdau[idouro] / FCdau[idouro])^2 * (Gthau[idouro] / Gth * Eficau[idouro] / Efic) / (((Asp - AspCd / FCd) / (Aspau[idouro] - AspCdau[idouro] /FCdau[idouro])) * (Gthau[idouro] / Gth * Eficau[idouro] / Efic)))
-#  
-#  dYiFCdauexp = D(expression(log(((Asp - AspCd / FCd) / (Aspau - AspCdau / FCdau)) * (Gthau / Gth * Eficau / Efic))), 'FCdau')
-#  dYiFCdau2 = eval( - ((Asp - AspCd / FCd) * (AspCdau[idouro] / FCdau[idouro]^2) / (Aspau[idouro] - AspCdau[idouro] / FCdau[idouro])^2 * (Gthau[idouro] / Gth * Eficau[idouro] / Efic) / (((Asp - AspCd / FCd) / (Aspau[idouro] - AspCdau[idouro] / FCdau[idouro])) * (Gthau[idouro] / Gth * Eficau[idouro] / Efic))))
-#  
-#  dYiGthauexp = D(expression(log(((Asp - AspCd / FCd) / (Aspau - AspCdau / FCdau)) * (Gthau / Gth * Eficau / Efic))), 'Gthau')
-#  dYiGthau2 = eval(((Asp - AspCd / FCd) / (Aspau[idouro] - AspCdau[idouro] / FCdau[idouro])) * (1 / Gth * Eficau[idouro] / Efic) / (((Asp - AspCd / FCd) / (Aspau[idouro] - AspCdau[idouro] / FCdau[idouro])) * (Gthau[idouro] / Gth * Eficau[idouro] / Efic)))
-#  
-#  dYiEficauexp = D(expression(log(((Asp - AspCd / FCd) / (Aspau - AspCdau / FCdau)) * (Gthau / Gth * Eficau / Efic))), 'Eficau')
-#  dYiEficau2 = eval(((Asp - AspCd / FCd) / (Aspau[idouro] - AspCdau[idouro] / FCdau[idouro])) * (Gthau[idouro] / Gth / Efic) / (((Asp - AspCd / FCd) / (Aspau[idouro] - AspCdau[idouro] / FCdau[idouro])) * (Gthau[idouro] / Gth * Eficau[idouro] / Efic)))
-#  
-# #Calculo da Variancia
+#------------------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------------------#
+
+# #Calculo da Variancia e Matriz de covariancia
+
+#------------------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------------------#
 
 varsup = (dYsAspCd * sAspCd)^2 + (dYsQ0 * sQ0)^2 + (dYsEfic * sEfic)^2 + (dYsFCd * sFCd)^2 + (dYsGepi * sGepi)^2
 
@@ -388,7 +395,13 @@ for(i in (N + 1):(N * 2)) {
   }
 }
 
+#------------------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------------------#
+
 #construindo a matrix de planejamento
+
+#------------------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------------------#
 cols = rep(1, N)
 coli = rep(0, N)
 col1 = c(cols, coli)
@@ -418,7 +431,13 @@ Yaju = X %*% par
 dif = Y - Yaju
 A = matrix(c(par[c(1,2)], exp(par[c( - 1, - 2)])))
 
+#------------------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------------------#
+
 #qui quadrado
+
+#------------------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------------------#
 qui2 = t(dif) %*% inv(vY) %*% dif
 
 #qui quadrado reduzido
@@ -437,7 +456,13 @@ sk0aju = k0aju * sqrt(diag(vpar)[c( - 1, - 2)])
 #Correlacao entre a e alfa
 coralfa=vpar[1,2]/(sa*salfa)
 
+#------------------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------------------#
+
 #comecando o levenberg
+
+#------------------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------------------#
 
 Aa = runif(1, min = 15, max = 30)
 Aalfa = runif(1, min = 0.00001, max = 0.1)
@@ -503,14 +528,21 @@ while(1) {
     chi2 = chi2novo
     recalcularY = 1
   }
-  if (isTRUE(abs(chidif) < 0.00001) & (isTRUE(abs(chidif) > 0.000000001))) {
+  if (isTRUE(abs(chidif) < 0.00001)) {# & (isTRUE(abs(chidif) > 0.000000001))) {
     break
   }
 }
 
 print("saiiiiiiiiiiiii")
 
+#------------------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------------------#
+
 #Calcula o Y Inferior de Q0 da matrix Y
+
+#------------------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------------------#
+
 Yi2 = expression(log(((FCdau * (Aspau / AspCdau) - 1) * (Gth * Gepiau)) / ((FCd * (Asp / AspCd) - 1) * (Gthau * Gepi)) * Q0au))
 Yinferior2 = 0
 for(i in 1:N){
@@ -543,6 +575,14 @@ for (i in 1 : N) {
   dYiGthau2[i] = -(((FCdau[idouro[i]] * (Aspau[idouro[i]]/AspCdau[idouro[i]]) - 1) * (Gth[i] * Gepiau[idouro[i]])) * ((FCd[i] * (Asp[i]/AspCd[i]) - 1) * Gepi[i])/((FCd[i] * (Asp[i]/AspCd[i]) - 1) * (Gthau[idouro[i]] * Gepi[i]))^2 * Q0au[idouro[i]]/(((FCdau[idouro[i]] * (Aspau[idouro[i]]/AspCdau[idouro[i]]) - 1) * (Gth[i] * Gepiau[idouro[i]]))/((FCd[i] * (Asp[i]/AspCd[i]) - 1) * (Gthau[idouro[i]] * Gepi[i])) * Q0au[idouro[i]]))
   dYiGepiau2[i] = (FCdau[idouro[i]] * (Aspau[idouro[i]]/AspCdau[idouro[i]]) - 1) * Gth[i]/((FCd[i] * (Asp[i]/AspCd[i]) - 1) * (Gthau[idouro[i]] * Gepi[i])) * Q0au[idouro[i]]/(((FCdau[idouro[i]] * (Aspau[idouro[i]]/AspCdau[idouro[i]]) - 1) * (Gth[i] * Gepiau[idouro[i]]))/((FCd[i] * (Asp[i]/AspCd[i]) - 1) * (Gthau[idouro[i]] * Gepi[i])) * Q0au[idouro[i]])
 }
+
+#------------------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------------------#
+
+#Calculado a nova variancia e nova matrix de covariancia com Q0
+
+#------------------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------------------#
 
 varsup2 = (dYsAspCd * sAspCd)^2 + (dYsQ0 * sQ0)^2 + (dYsEfic * sEfic)^2 + (dYsFCd * sFCd)^2 + (dYsGepi * sGepi)^2
 
@@ -613,7 +653,14 @@ for(i in (N + 1):(N * 2)) {
   }
 }
 
-#construindo a matrix de planejamento
+#------------------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------------------#
+
+#construindo a nova matrix de planejamento
+
+#------------------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------------------#
+
 cols2 = rep(1, N)
 coli2 = rep(0, N)
 col12 = c(cols, coli)
@@ -636,7 +683,14 @@ for(i in 1:N) {
 
 X2 = cbind(col1, col2, X2)
 
-#comecando o levenberg
+#------------------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------------------#
+
+#comecando o levenberg para Q0
+
+#------------------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------------------#
+
 Yajusup2 = 0
 Yajuinf2 = 0
 Yexp = matrix(Y2)
@@ -655,7 +709,7 @@ k0b = A3[c(-1,-2)]
 
 Q0b = 0
 for (i in 1 : N) {
-  Q0b[i] = log(runif(1, min = 1.001, max = 5))
+  Q0b[i] = log(runif(1, min = 1.9, max = 2))
 }
 
 A3 = c(A3[c(1, 2)], Q0b)
@@ -664,20 +718,6 @@ Q0alfac = 0
 for (i in 1:N) {
   Q0alfac[i] =  ((Q0au[idouro[i]] - 0.429)/(Eres[i]*alfa2)+0.429/((2*alfa2+1)*(0.55**alfa2)))
 }
-#Q0alfac =  ((Q0au - 0.429)/(Eres*alfa2)+0.429/((2*alfa2+1)*(0.55**alfa2)))
-
-# for (i in 1 : N) {
-#   Q0c = Q0b[i]
-#   Yajusup2[i] = a2 + ((alfa2 / Q0c) * ((Q0c + 0.429) * log(Eres[i]) - 0.602)) + log(exp(k0b[i]))
-#   Yajuinf2[i] = log(exp(Q0c))
-# }
-# Yaju3 = matrix(c(Yajusup2,Yajuinf2))
-# datb = Yexp - Yaju3
-# Yy = Yexp - Yaju3
-# ss2 = cbind(Yexp, Yaju3)
-# if (chi2 == -1) {
-#   chi2 = t(datb) %*% inv(vY2) %*% datb
-# }
 
 while(1) {
   if(recalcularY == 1) {
@@ -704,7 +744,7 @@ while(1) {
       }
     }
   }
-  DA = Ginv(Rlambda2) %*% t(X2) %*% inv(vY2) %*% Yy
+  DA = inv(Rlambda2) %*% t(X2) %*% inv(vY2) %*% Yy
   Ynovo = X2 %*% DA
   DD = Yy - Ynovo
   chi2novo = t(DD) %*% inv(vY2) %*% DD
@@ -719,11 +759,18 @@ while(1) {
     chi2 = chi2novo
     recalcularY = 1
   }
-  if (isTRUE(abs(chidif) < 0.00001) & (isTRUE(abs(chidif) > 0.000000001))) {
+  if (isTRUE(abs(chidif) < 0.000001)) { #} & (isTRUE(abs(chidif) > 0.0000000000000001))) {
     break
   }
 }
 
+#------------------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------------------#
+
+#Definindo os ajustes finais e selecionando os parametros e suas incertezas
+
+#------------------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------------------#
 
 Afinal = A2
 
@@ -731,17 +778,40 @@ for (i in 1 : N) {
   Afinal[i+2] = exp(Afinal[i+2])
 }
 
-sY = sqrt(diag(vY))
-sAfinal = sqrt(diag(inv(Rlambda)))
-sAfinal2 = Afinal * sqrt(diag(inv(Rlambda)))
-sAfinal2 = matrix(sAfinal2[c(-1,-2)])
-quirednovo = chi2novo/gl
-probchi2 = (1-pchisq(chi2novo,gl))*100
-
 options(scipen = 1)
 
 Afinal2 = round(matrix(c(Afinal[c(-1,-2)], exp(A3[c(-1,-2)]))), digits = 9)
+
+Q0alfa = 0
+for (i in 1 : N) {
+  Q0alfa[i] = Afinal2[i+N]
+}
+
+f = round(median(((FCd*(Asp/AspCd)-1) * Q0alfa * Gepi)/Gth), digits = 5)
+
 aalfa = round(matrix(Afinal[c(1, 2)]), digits = 5)
+aalfaf = c(aalfa, f)
+
+sY = sqrt(diag(vY))
+sAfinal = sqrt(abs(diag(inv(Rlambda))))
+sAfinalk0 = Afinal * sqrt(abs(diag(inv(Rlambda+Rlambda2))))
+sAfinalk0 = matrix(sAfinalk0[c(-1,-2)])
+sAfinalQ0 = exp(A3) * sqrt(abs(diag(inv(Rlambda2))))
+sAfinalQ0 = matrix(sAfinalQ0[c(-1,-2)])
+saalfa = round(sAfinal[c(1,2)], digits = 5)
+quirednovo = chi2novo/gl
+probchi2 = (1-pchisq(chi2novo,gl))*100
+sAfinal2 = matrix(c(sAfinalk0, sAfinalQ0))
+
+sfexp = expression(((FCd*(Asp/AspCd)-1) * Q0alfa * Gepi)/Gth)
+dsfFcd = eval(D(sfexp, 'FCd'))
+dsfAsp = eval(D(sfexp, 'Asp'))
+dsfAspCd = eval(D(sfexp, 'AspCd'))
+dsfQ0alfa = eval(D(sfexp, 'Q0alfa'))
+dsfGepi = eval(D(sfexp, 'Gepi'))
+dsfGth = eval(D(sfexp, 'Gth'))
+dsf = sqrt(dsfFcd^2*sFCd^2 +  dsfAsp^2*sAsp^2 + dsfAspCd^2*sAspCd^2 + dsfGepi^2*sGepi^2 + dsfGth^2*sGth^2 +dsfQ0alfa^2*sAfinalQ0^2)
+sf = median(dsf)/sqrt(N)
 
 param = matrix(c(Isotopo, Isotopo))
 
@@ -755,14 +825,21 @@ for (i in 1 : N) {
   park0[i] = 'k0'
 }
 
-param2 = cbind(param, c(park0, parQ0), scientific(Afinal2, digits = 5), scientific(c(k0,Q0), digits = 5))
-param3 = c('a', 'alfa')
-param4 = cbind(param3, aalfa, '-', '-')
+param2 = cbind(param, c(park0, parQ0), scientific(Afinal2, digits = 5), scientific(sAfinal2, digits = 5), scientific(c(k0,Q0), digits = 5), scientific(c(sk0,sQ0), digits = 5))
+param3 = c('a', 'alfa', 'f')
+param4 = cbind(param3, aalfaf, '-', c(saalfa, round(sf, digits = 5)), "-", '-')
 
 paramfinal = rbind(param4, param2)
-colnames(paramfinal) = c('Alvos','Valores', 'Valores', 'Referencia')
+colnames(paramfinal) = c('Alvos','Valores', 'Valores', 'Incerteza', 'Referencia', 'Incerteza')
+
+#------------------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------------------#
 
 #gerando graficos
+
+#------------------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------------------#
+
 vetorx=0
 for (i in 1 : Ntotal) {
   vetorx[i] = 0.95+i*1.005
@@ -782,46 +859,28 @@ text(xplot, (DD/sY), labels = pointname2, cex = 0.7, pos = 1)
 abline(2, 0, lty=3)
 abline(-2, 0, lty=3)
 
-# sink('Resultados.txt', append = FALSE, split = FALSE)
-# 'VALORES DOS PARAMETROS'
-# '----------------------------------------------------------------'
-# print(c('a    = ', round(Afinal[1], 5), round(sAfinal[1], 5)))
-# print(c('Alfa =  ', round(Afinal[2], 5), round(sAfinal[2], 5)))
-# print(c('QUI-QUADRADO', round(chi2novo, 2)))
-# print(c('QUI-QUADRADO REDUZIDO', round(quirednovo, 2)))
-# '----------------------------------------------------------------'
-# 'VALORES DOS K0S'
-# k0res = 0
-# for (i in 1 : N) {
-#   k0res[i] = round(Afinal[i+2], 11)
-# }
-# 
-# k0res = format(matrix(k0res, ncol=1), scientific = TRUE)
-# colnames(k0res) = '     k0'
-# Isotopo = matrix(Isotopo, ncol=1)
-# colnames(Isotopo) = 'Isotopo'
-# Egama = matrix(Egama, ncol=1)
-# colnames(Egama) = 'E. gamma'
-# tabela = format(matrix(k0, ncol=1), scientific = TRUE)
-# colnames(tabela) = 'Referencia'
-# #sk0res = sAfinal2
-# sk0res = round(sAfinal2, 11)
-# sk0res = format(matrix(sk0res, ncol=1), scientific = TRUE)
-# colnames(sk0res) = '  Incerteza'
-# 
-# cbind(Isotopo, Egama, k0res, sk0res, tabela)
-# sink()
+#------------------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------------------#
 
+#Gravando os resultados em um arquivo de texto
 
-#invf = Gth / ((FCd * (Asp / AspCd) - 1) * Q0 * Gepi)
-#f = 1 / invf
-#(exp(b) / Efic^ - alfa) * (Efic^alfa / Efic^ - alfa)
-# Q0alfac
-# for(i in 1:N){
-# Q0alfac[i] =  ((Q0au[idouro[i]] - 0.429)/(Eresau[idouro[i]]^-alfa2)+0.429/((2*alfa2+1)*(0.55^alfa2)))
-# }
-# 
-# Q0ia = 0
+sink('Resultados.txt')
+'AkFIT - R EDITION'
+'CODIGO CRIADO POR - RAFAEL VANHOZ'
+'VALORES DOS PARAMETROS'
+'----------------------------------------------------------------'
+'----------------------------------------------------------------'
+print(paramfinal)
+sink()
+
+#------------------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------------------#
+
+#Comentarios para calculos de teste, sem utilidade para o programa, apenas para utilidade do desenvolvedor
+
+#------------------------------------------------------------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------------------------------------------------------------#
+
 # Q0ia = 0
 #  for(i in 1:N){
 #    Q0ia[i] = (((FCdau[idouro[i]]*(Aspau[idouro[i]]/AspCdau[idouro[i]])-1)/(FCd[i]*(Asp[i]/AspCd[i])-1))*((Gth[i]*Gepiau[idouro[i]])/((Gthau[idouro[i]]*Gepi[i])))*((Q0au[idouro[i]] - 0.429)/(Eresau[idouro[i]]^-alfa2)+0.429/((2*alfa2+1)*(0.55^alfa2))))
